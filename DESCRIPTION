@@ -14,7 +14,7 @@ Authors@R: c(
   )
 Description: [请在此处填写包的详细描述，英文，每行不超过80字符]
 License: GPL (>= 2)
-Depends: R (>= 4.5.0)
+Depends: R (>= 4.3.0)
 Imports: stats, methods
 Encoding: UTF-8
 LazyData: false

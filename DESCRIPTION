@@ -1,0 +1,23 @@
+Package: ICCDesign
+Title: Helping You Correctly Use the Intraclass Correlation Coefficient
+Version: 0.1.0
+Authors@R: c(
+    person("Yundan", "Zhang", 
+           email = "1661572728@qq.com",
+           role = c("aut", "cre")),
+    person("Ruilin", "Ma", 
+           role = "aut"),
+    person("Chenge", "Gao", 
+           role = "aut"),
+    person("Ziyu", "Liu", 
+           role = "aut")
+  )
+Description: [请在此处填写包的详细描述，英文，每行不超过80字符]
+License: GPL (>= 2)
+Depends: R (>= 4.5.0)
+Imports: stats, methods
+Encoding: UTF-8
+LazyData: false
+RoxygenNote: 7.3.3
+URL: https://github.com/yourusername/ICCDesign
+BugReports: https://github.com/yourusername/ICCDesign/issues

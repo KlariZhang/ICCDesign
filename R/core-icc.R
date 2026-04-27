@@ -1,7 +1,7 @@
 # File: core-icc.R
 # Description: Core calculation functions for all 10 ICC types
 #              (6 common + 4 supplementary)
-# Author: [jade]
+# Author: [Ziyu Liu]
 # Date: [20260421]
 # Dependencies: All functions rely on internal utility functions from
 #               utils-data.R and utils-calc.R

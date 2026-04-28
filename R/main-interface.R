@@ -148,7 +148,6 @@ icc_map_design_to_icc <- function(same_raters, rater_effect, rating_type, agreem
 #'   \item point_est: Numeric. ICC point estimate.
 #'   \item ci_lower: Numeric. 95% CI lower bound.
 #'   \item rating_en: Character. English reliability rating.
-#'   \item rating_cn: Character. Chinese reliability rating.
 #'   \item explanation: Character. Interpretation text.
 #' }
 #'
@@ -167,22 +166,18 @@ icc_evaluate <- function(icc_result) {
   # Determine rating based on CI lower bound
   if (ci_lower < 0.5) {
     rating_en <- "Poor"
-    rating_cn <- "Poor"
   } else if (ci_lower >= 0.5 && ci_lower < 0.75) {
     rating_en <- "Moderate"
-    rating_cn <- "Moderate"
   } else if (ci_lower >= 0.75 && ci_lower < 0.9) {
     rating_en <- "Good"
-    rating_cn <- "Good"
   } else {
     rating_en <- "Excellent"
-    rating_cn <- "Excellent"
   }
 
   # Build explanation
   explanation <- paste0(
     "Based on the 95% CI lower bound (", sprintf("%.3f", ci_lower), "), ",
-    "the reliability is rated as '", rating_en, "' (", rating_cn, "). "
+    "the reliability is rated as '", rating_en, "'. "
   )
 
   # Add cross-interval warning if needed
@@ -195,13 +190,12 @@ icc_evaluate <- function(icc_result) {
     )
   }
 
-  # Return result
+  # Return result (removed rating_cn for CRAN compliance)
   list(
     icc_code = icc_code,
     point_est = point_est,
     ci_lower = ci_lower,
     rating_en = rating_en,
-    rating_cn = rating_cn,
     explanation = explanation
   )
 }
@@ -224,7 +218,7 @@ icc_evaluate <- function(icc_result) {
 #'
 #' @keywords internal
 icc_generate_report <- function(icc_result, evaluation, format = "text") {
-  # Extract all necessary information
+  # Extract all necessary information (removed rating_cn)
   icc_full_name <- icc_result$icc_type
   icc_code <- icc_result$icc_code
   point_est <- icc_result$point_est
@@ -233,7 +227,6 @@ icc_generate_report <- function(icc_result, evaluation, format = "text") {
   ci_upper <- icc_result$ci_upper
   f_test_null <- icc_result$F_test_null
   rating_en <- evaluation$rating_en
-  rating_cn <- evaluation$rating_cn
   explanation <- evaluation$explanation
 
   # Build report components
@@ -259,11 +252,11 @@ icc_generate_report <- function(icc_result, evaluation, format = "text") {
 
   rating_section <- paste0(
     "Reliability Rating:\n",
-    "  Category: ", rating_en, " (", rating_cn, ")\n",
+    "  Category: ", rating_en, "\n",
     "  Interpretation: ", explanation
   )
 
-  # Combine based on format
+  # Combine based on format (removed all rating_cn references)
   if (format == "text") {
     report <- paste0(
       header, "\n\n",
@@ -285,7 +278,7 @@ icc_generate_report <- function(icc_result, evaluation, format = "text") {
       "- DF: (", f_test_null$df1, ", ", f_test_null$df2, ")\n",
       "- p-value: ", if (!is.null(f_test_null$p_value)) sprintf("%.4f", f_test_null$p_value) else "N/A", "\n\n",
       "## Reliability Rating\n",
-      "- **", rating_en, "** (", rating_cn, ")\n",
+      "- **", rating_en, "**\n",
       "- ", explanation
     )
   } else if (format == "html") {
@@ -305,7 +298,7 @@ icc_generate_report <- function(icc_result, evaluation, format = "text") {
       "<li>p-value: ", if (!is.null(f_test_null$p_value)) sprintf("%.4f", f_test_null$p_value) else "N/A", "</li>",
       "</ul>",
       "<h2>Reliability Rating</h2>",
-      "<p><strong>", rating_en, "</strong> (", rating_cn, ")</p>",
+      "<p><strong>", rating_en, "</strong></p>",
       "<p>", explanation, "</p>"
     )
   }

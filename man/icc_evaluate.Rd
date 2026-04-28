@@ -16,7 +16,6 @@ A named list with elements:
   \item point_est: Numeric. ICC point estimate.
   \item ci_lower: Numeric. 95% CI lower bound.
   \item rating_en: Character. English reliability rating.
-  \item rating_cn: Character. Chinese reliability rating.
   \item explanation: Character. Interpretation text.
 }
 }

@@ -1,113 +1,146 @@
-#' Sample size for ICC based on lower confidence limit (Zou 2012, Eq 7)
+# File: sample_size_calculate.R
+# Description: Sample size and power analysis for ICC
+# Author: [Ziyu Liu]
+# Date: [20260421]
+
+#' Sample Size for ICC based on Lower Confidence Limit
 #'
-#' Computes the number of subjects required to ensure, with a given assurance
-#' probability, that the lower limit of a one-sided confidence interval for the
-#' intraclass correlation coefficient (ICC) is no less than a specified value.
+#' @param rho Anticipated ICC value.
+#' @param rho0 Desired lower bound.
+#' @param k Number of observations per subject. Default 3.
+#' @param same_raters Logical.
+#' @param rater_effect "random" or "fixed".
+#' @param rating_type "single" or "average".
+#' @param agreement_type "absolute" or "consistency".
+#' @param alpha Significance level. Default 0.05.
+#' @param assurance Assurance probability. Default 0.8.
+#' @param rating_target Shortcut for rho0.
+#' @param verbose Print messages. Default TRUE.
 #'
-#' @importFrom stats qnorm
-#' @param rho anticipated ICC (planning value)
-#' @param rho0 desired lower bound of the confidence interval
-#' @param k number of observations per subject (raters or replicates)
-#' @param alpha significance level (default 0.05 for 95\% confidence)
-#' @param assurance desired assurance probability (1 - beta, default 0.8)
-#' @return required number of subjects (integer, rounded up)
-#' @references Zou, G. Y. (2012). Sample size formulas for estimating intraclass
-#'   correlation coefficients with precision and assurance. Statistics in Medicine,
-#'   31(29), 3972-3984. doi:10.1002/sim.5466
-#' @examples
-#' # From paper Section 4: ρ=0.725, ρ0=0.7, k=3, α=0.05, assurance=0.8
-#' icc_sample_size_lower(rho = 0.725, rho0 = 0.7, k = 3, assurance = 0.8)
+#' @return Required sample size.
 #' @export
-icc_sample_size_lower <- function(rho, rho0, k, alpha = 0.05, assurance = 0.8) {
-  # Input validation
-  stopifnot(
-    "rho must be between -1 and 1" = rho >= -1 && rho <= 1,
-    "rho0 must be between -1 and 1" = rho0 >= -1 && rho0 <= 1,
-    "rho must be > rho0 for meaningful calculation" = rho > rho0,
-    "k must be integer >= 2" = k >= 2 && round(k) == k,
-    "alpha must be between 0 and 1" = alpha > 0 && alpha < 1,
-    "assurance must be between 0 and 1" = assurance > 0 && assurance < 1
-  )
-
-  # Quantiles
-  z_alpha <- qnorm(1 - alpha)  # one-sided upper quantile
-  z_beta  <- qnorm(assurance)  # since assurance = 1 - beta
-
-  # F(rho) = (1 + (k-1)*rho) / (1 - rho)
-  F_rho  <- (1 + (k - 1) * rho)  / (1 - rho)
-  F_rho0 <- (1 + (k - 1) * rho0) / (1 - rho0)
-
-  # Equation (7)
-  numerator   <- 2 * (z_alpha + z_beta)^2 * k
-  denominator <- (log(F_rho / F_rho0))^2 * (k - 1)
-  N <- 1 + numerator / denominator
-
-  ceiling(N)
-}
-
-
-#' Sample size for ICC based on desired confidence interval width with assurance
-#' (Zou 2012, Eq 5)
-#'
-#' Computes the number of subjects required to ensure, with a given assurance
-#' probability, that the half-width of a two-sided confidence interval for the
-#' ICC does not exceed a specified value.
-#'
-#' @param rho anticipated ICC (planning value)
-#' @param omega desired half-width of the two-sided confidence interval
-#' @param k number of observations per subject (raters or replicates)
-#' @param alpha significance level (default 0.05 for 95\% confidence)
-#' @param assurance desired assurance probability (1 - beta, default 0.8)
-#' @return required number of subjects (integer, rounded up)
-#' @references Zou, G. Y. (2012). Sample size formulas for estimating intraclass
-#'   correlation coefficients with precision and assurance. Statistics in Medicine,
-#'   31(29), 3972-3984. doi:10.1002/sim.5466
-#' @examples
-#' # From paper Table I: ρ=0.6, ω=0.1, k=3, α=0.05, assurance=0.5 -> ~101
-#' icc_sample_size_width(rho = 0.6, omega = 0.1, k = 3, assurance = 0.5)
-#' @export
-icc_sample_size_width <- function(rho, omega, k, alpha = 0.05, assurance = 0.8) {
-  # Input validation
-  stopifnot(
-    "rho must be between -1 and 1" = rho >= -1 && rho <= 1,
-    "omega must be positive" = omega > 0,
-    "k must be integer >= 2" = k >= 2 && round(k) == k,
-    "alpha must be between 0 and 1" = alpha > 0 && alpha < 1,
-    "assurance must be between 0 and 1" = assurance > 0 && assurance < 1
-  )
-
-  # Quantiles
-  z_alpha2 <- qnorm(1 - alpha / 2)  # two-sided
-  z_beta   <- qnorm(assurance)      # assurance = 1 - beta
-
-  # Auxiliary quantities
-  A <- (1 - rho) * (1 + (k - 1) * rho)
-  B <- k - 2 + 2 * rho - 2 * k * rho
-  absB <- abs(B)
-
-  # Equation (5)
-  term1 <- A * z_alpha2
-  term2 <- sqrt(A^2 * z_alpha2^2 + 4 * omega * z_alpha2 * z_beta * A * absB)
-  numerator <- term1 + term2
-  denominator <- omega * sqrt(2 * k * (k - 1))
-
-  sqrt_N_minus_1 <- numerator / denominator
-  N <- 1 + sqrt_N_minus_1^2
-
-  ceiling(N)
-}
-
-
-#' Unified interface for ICC sample size calculation
-#'
-#' @param method either "lower" (for lower confidence limit) or "width" (for interval width)
-#' @param ... arguments passed to the specific function
-#' @export
-icc_sample_size <- function(method = c("lower", "width"), ...) {
-  method <- match.arg(method)
-  if (method == "lower") {
-    icc_sample_size_lower(...)
-  } else {
-    icc_sample_size_width(...)
+icc_sample_size_lower <- function(
+    rho, rho0 = NULL, k = 3, same_raters, rater_effect = NULL,
+    rating_type, agreement_type = NULL, alpha = 0.05, assurance = 0.8,
+    rating_target = NULL, verbose = TRUE
+) {
+  if (!is.null(rating_target)) {
+    rating_map <- c(poor=0.5, moderate=0.5, good=0.75, excellent=0.9)
+    if (!rating_target %in% names(rating_map)) stop("rating_target error")
+    rho0 <- rating_map[rating_target]
   }
+  if (is.null(rho0)) stop("Provide rho0 or rating_target")
+  
+  design_check <- icc_check_design(same_raters, rater_effect, rating_type, agreement_type, k)
+  if (!design_check$is_valid) stop(design_check$error_msg)
+  mapping <- icc_map_design_to_icc(same_raters, rater_effect, rating_type, agreement_type)
+  
+  if (verbose) message("Mapped ICC type: ", mapping$icc_full_name)
+  stopifnot(rho>=0&rho<=1, rho0>=0&rho0<=1, rho>rho0, k>=2)
+  
+  z_alpha <- stats::qnorm(1-alpha)
+  z_beta <- stats::qnorm(assurance)
+  F_rho <- (1+(k-1)*rho)/(1-rho)
+  F_rho0 <- (1+(k-1)*rho0)/(1-rho0)
+  N <- 1 + 2*(z_alpha+z_beta)^2*k / ((log(F_rho/F_rho0))^2*(k-1))
+  ceiling(N)
+}
+
+#' Sample Size for ICC based on Confidence Interval Width
+#'
+#' @param rho Anticipated ICC value.
+#' @param omega Desired half-width.
+#' @param k Number of observations. Default 3.
+#' @param same_raters Logical.
+#' @param rater_effect "random" or "fixed".
+#' @param rating_type "single" or "average".
+#' @param agreement_type "absolute" or "consistency".
+#' @param alpha Significance level. Default 0.05.
+#' @param assurance Assurance probability. Default 0.8.
+#' @param verbose Print messages. Default TRUE.
+#'
+#' @return Required sample size.
+#' @export
+icc_sample_size_width <- function(
+    rho, omega, k=3, same_raters, rater_effect=NULL, rating_type,
+    agreement_type=NULL, alpha=0.05, assurance=0.8, verbose=TRUE
+) {
+  design_check <- icc_check_design(same_raters, rater_effect, rating_type, agreement_type, k)
+  if (!design_check$is_valid) stop(design_check$error_msg)
+  if (verbose) message("Mapped ICC type.")
+  stopifnot(rho>=0&rho<=1, omega>0, k>=2)
+  
+  z_alpha2 <- stats::qnorm(1-alpha/2)
+  z_beta <- stats::qnorm(assurance)
+  A <- (1-rho)*(1+(k-1)*rho)
+  B <- k-2+2*rho-2*k*rho
+  absB <- abs(B)
+  
+  term1 <- A*z_alpha2
+  term2 <- sqrt(A^2*z_alpha2^2 + 4*omega*z_alpha2*z_beta*A*absB)
+  sqrt_N_minus_1 <- (term1+term2)/(omega*sqrt(2*k*(k-1)))
+  N <- 1 + sqrt_N_minus_1^2
+  ceiling(N)
+}
+
+#' Power Calculation for ICC Study Design
+#'
+#' @param n Number of subjects.
+#' @param rho Anticipated ICC value.
+#' @param rho0 Lower bound for method="lower".
+#' @param omega Half-width for method="width".
+#' @param k Number of observations. Default 3.
+#' @param same_raters Logical.
+#' @param rater_effect "random" or "fixed".
+#' @param rating_type "single" or "average".
+#' @param agreement_type "absolute" or "consistency".
+#' @param alpha Significance level. Default 0.05.
+#' @param method "lower" or "width".
+#' @param verbose Print messages. Default TRUE.
+#'
+#' @return Power.
+#' @export
+icc_power <- function(
+    n, rho, rho0=NULL, omega=NULL, k=3, same_raters, rater_effect=NULL,
+    rating_type, agreement_type=NULL, alpha=0.05, method=c("lower","width"), verbose=TRUE
+) {
+  method <- match.arg(method)
+  stopifnot(n>=2, rho>=0&rho<=1)
+  
+  if (method=="lower") {
+    if (is.null(rho0)) stop("Provide rho0")
+    z_alpha <- stats::qnorm(1-alpha)
+    F_rho <- (1+(k-1)*rho)/(1-rho)
+    F_rho0 <- (1+(k-1)*rho0)/(1-rho0)
+    z_beta <- log(F_rho/F_rho0)*sqrt((k-1)*(n-1)/(2*k)) - z_alpha
+    return(stats::pnorm(z_beta))
+  }
+  
+  if (method=="width") {
+    if (is.null(omega)) stop("Provide omega")
+    z_alpha2 <- stats::qnorm(1-alpha/2)
+    A <- (1-rho)*(1+(k-1)*rho)
+    B <- k-2+2*rho-2*k*rho
+    absB <- abs(B)
+    numerator <- omega*sqrt(2*k*(k-1))*sqrt(n-1) - A*z_alpha2
+    denominator <- 2*omega*z_alpha2*A*absB
+    z_beta <- sqrt(numerator^2/denominator)
+    return(stats::pnorm(z_beta))
+  }
+}
+
+#' Unified ICC Sample Size & Power Interface
+#'
+#' @param method "lower", "width", "power".
+#' @param ... Arguments passed to underlying functions.
+#'
+#' @return Sample size or power.
+#' @export
+icc_sample_size <- function(method = c("lower", "width", "power"), ...) {
+  method <- match.arg(method)
+  switch(method,
+         lower = icc_sample_size_lower(...),
+         width = icc_sample_size_width(...),
+         power = icc_power(...)
+  )
 }

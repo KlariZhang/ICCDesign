@@ -2,6 +2,7 @@
 
 export(icc_calc)
 export(icc_power)
+export(icc_preprocess_data)
 export(icc_sample_size)
 export(icc_sample_size_lower)
 export(icc_sample_size_width)

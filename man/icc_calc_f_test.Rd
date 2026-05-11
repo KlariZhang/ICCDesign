@@ -22,7 +22,7 @@ Named list with test results:
   \item{F_stat}{Numeric. F test statistic.}
   \item{df1}{Integer. Numerator degrees of freedom.}
   \item{df2}{Integer. Denominator degrees of freedom.}
-  \item{p_value}{Numeric. One-tailed p-value.}
+  \item{p_value}{Numeric. One-tailed p-value (H1: ICC > rho0).}
 }
 }
 \description{
@@ -30,6 +30,7 @@ Performs one-tailed F-test for ICC significance following McGraw & Wong (1996) T
 Supports both null hypothesis of zero ICC and custom non-zero null value.
 }
 \references{
-McGraw, K. O., & Wong, S. P. (1996). Forming inferences about some intraclass correlation coefficients.
+McGraw, K. O., & Wong, S. P. (1996). Forming inferences about some
+intraclass correlation coefficients. Psychological Methods, 1(1), 30-46.
 }
 \keyword{internal}

@@ -1,4 +1,4 @@
-# File: anova-calculation.R
+# File: utils-calc.R
 # Description: Core ANOVA calculation for all ICC models (one-way & two-way)
 # Author: [Clare Gao]
 # Date: 2026-5-6
@@ -18,7 +18,8 @@
 #' @param data_matrix Numeric matrix. Standardized data matrix from \code{icc_preprocess_data}.
 #' @param model_type Character. Model type: "oneway" (one-way random) or "twoway" (two-way).
 #' @param interaction Logical. Default \code{TRUE}. Whether to include subject×rater interaction
-#'   term for two-way models (follows standard literature settings).
+#'   term for two-way models (follows standard literature settings). If FALSE, rater effect
+#'   is pooled into the residual term.
 #'
 #' @return A named list containing ANOVA results:
 #' \describe{
@@ -69,7 +70,7 @@ icc_calc_anova <- function(data_matrix, model_type, interaction = TRUE) {
   result$k <- k
 
   #----------------------------------------------------------------------------#
-  # Step 2: One-way random ANOVA model
+  # Step 2: One-way random ANOVA model (ICC(1,1), ICC(1,k))
   #----------------------------------------------------------------------------#
   if (model_type == "oneway") {
     # Grand mean
@@ -95,7 +96,7 @@ icc_calc_anova <- function(data_matrix, model_type, interaction = TRUE) {
   }
 
   #----------------------------------------------------------------------------#
-  # Step 3: Two-way ANOVA model (with/without interaction)
+  # Step 3: Two-way ANOVA model (all other ICC types)
   #----------------------------------------------------------------------------#
   if (model_type == "twoway") {
     # Grand mean & marginal means
@@ -106,7 +107,7 @@ icc_calc_anova <- function(data_matrix, model_type, interaction = TRUE) {
     # Sum of squares
     ss_r <- sum(k * (row_means - grand_mean)^2)  # Subjects
     ss_c <- sum(n * (col_means - grand_mean)^2)  # Raters
-    ss_e <- sum((data_matrix - row_means - col_means + grand_mean)^2)  # Residual
+    ss_e <- sum((data_matrix - row_means - col_means + grand_mean)^2)  # Residual/Interaction
 
     # Degrees of freedom
     df1 <- n - 1    # Subjects
@@ -116,7 +117,8 @@ icc_calc_anova <- function(data_matrix, model_type, interaction = TRUE) {
     if (interaction) {
       df2 <- (n - 1) * (k - 1)  # Residual df (with interaction)
     } else {
-      # Merge residual and interaction df/SS if interaction = FALSE
+      # Merge rater effect into residual if interaction = FALSE
+      # This is equivalent to assuming no rater effect variance
       ss_e <- ss_e + ss_c
       df2 <- (n - 1) * (k - 1) + (k - 1)
       ss_c <- 0
@@ -125,7 +127,7 @@ icc_calc_anova <- function(data_matrix, model_type, interaction = TRUE) {
 
     # Mean squares
     ms_r <- ss_r / df1
-    ms_c <- ss_c / df3
+    ms_c <- ifelse(df3 == 0, 0, ss_c / df3)
     ms_e <- ss_e / df2
 
     # Assign results (two-way: MSW = NULL)
@@ -143,7 +145,7 @@ icc_calc_anova <- function(data_matrix, model_type, interaction = TRUE) {
 
 #==============================================================================#
 # Function 2: icc_tool_point
-# Unified point estimate for 10 ICC types (Table 4/5, 1996)
+# Unified point estimate for 10 ICC types (Table 4/5, McGraw & Wong 1996)
 #==============================================================================#
 #' Calculate ICC Point Estimate
 #'
@@ -213,11 +215,11 @@ icc_tool_point <- function(anova_result, icc_type) {
     "3,1" = (MSR - MSE) / (MSR + (k - 1) * MSE),
     "3,k" = (MSR - MSE) / MSR,
 
-    # Random + consistency (mapped to 3,1 / 3,k)
+    # Random + consistency (mathematically equivalent to 3,1 / 3,k)
     "2,1,consistency" = (MSR - MSE) / (MSR + (k - 1) * MSE),
     "2,k,consistency" = (MSR - MSE) / MSR,
 
-    # Mixed + absolute agreement (mapped to 2,1 / 2,k)
+    # Mixed + absolute agreement (mathematically equivalent to 2,1 / 2,k)
     "3,1,absolute" = (MSR - MSE) / (MSR + (k - 1) * MSE + k * (MSC - MSE) / n),
     "3,k,absolute" = (MSR - MSE) / (MSR + (MSC - MSE) / n)
   )
@@ -235,16 +237,16 @@ icc_tool_point <- function(anova_result, icc_type) {
 #' Calculate ICC Confidence Intervals
 #'
 #' @description
-#' Computes 95% confidence intervals for all 10 ICC types using exact F-distribution
+#' Computes confidence intervals for all 10 ICC types using exact F-distribution
 #' method from McGraw & Wong (1996) Table 7. Implements Satterthwaite degrees of
-#' freedom correction for Type A ICC models.
+#' freedom correction for Type A ICC models (ICC(2,1), ICC(2,k) and their variants).
 #'
 #' @param anova_result List. Output from \code{icc_calc_anova}.
 #' @param icc_type Character. ICC type code (matches icc_tool_point).
 #' @param point_est Numeric. Point estimate from \code{icc_tool_point}.
-#' @param alpha Numeric. Significance level, default 0.05 (95% CI).
+#' @param alpha Numeric. Significance level, default 0.05 (95\% CI).
 #'
-#' @return Named list with CI results:
+#' @return A named list with CI results:
 #' \describe{
 #'   \item{ci_level}{Numeric. Confidence level (1 - alpha).}
 #'   \item{ci_lower}{Numeric. Lower bound of CI (truncated to 0).}
@@ -254,7 +256,8 @@ icc_tool_point <- function(anova_result, icc_type) {
 #'
 #' @keywords internal
 #' @references
-#' McGraw, K. O., & Wong, S. P. (1996). Forming inferences about some intraclass correlation coefficients.
+#' McGraw, K. O., & Wong, S. P. (1996). Forming inferences about some
+#' intraclass correlation coefficients. Psychological Methods, 1(1), 30-46.
 icc_tool_ci <- function(anova_result, icc_type, point_est, alpha = 0.05) {
   # Initialize output
   result <- list(
@@ -281,8 +284,8 @@ icc_tool_ci <- function(anova_result, icc_type, point_est, alpha = 0.05) {
   df3 <- anova_result$df3
 
   # F quantiles (two-tailed)
-  F_lower <- qf(alpha/2, df1, df2, lower.tail = FALSE)
-  F_upper <- qf(alpha/2, df2, df1, lower.tail = FALSE)
+  F_lower <- stats::qf(alpha/2, df1, df2, lower.tail = FALSE)
+  F_upper <- stats::qf(alpha/2, df2, df1, lower.tail = FALSE)
 
   # CI calculation by ICC type
   if (icc_type %in% c("1,1")) {
@@ -302,19 +305,24 @@ icc_tool_ci <- function(anova_result, icc_type, point_est, alpha = 0.05) {
     lower <- 1 - 1/F_lower
     upper <- 1 - 1/F_upper
   } else if (icc_type %in% c("2,1", "3,1,absolute", "2,k", "3,k,absolute")) {
-    # Type A: Satterthwaite correction
+    # Type A: Satterthwaite degrees of freedom correction (McGraw & Wong 1996, p.37)
+    a <- k * MSC / n + (n - 1) * MSE
+    b <- (n - 1) * k * MSE / n
+    df_corrected <- (a + b)^2 / (a^2 / df1 + b^2 / df2)
+    result$df_corrected <- df_corrected
+
+    # Recalculate F quantiles with corrected degrees of freedom
+    F_lower_corr <- stats::qf(alpha/2, df1, df_corrected, lower.tail = FALSE)
+    F_upper_corr <- stats::qf(alpha/2, df_corrected, df1, lower.tail = FALSE)
+
     if (icc_type %in% c("2,1", "3,1,absolute")) {
       F_val <- MSR / MSE
-      df_num <- df1
-      df_den <- df2
-      result$df_corrected <- df_den
-      lower <- (F_val/F_lower - 1)/(F_val/F_lower + (k-1) + k*(MSC-MSE)/(n*MSE))
-      upper <- (F_val/F_upper - 1)/(F_val/F_upper + (k-1) + k*(MSC-MSE)/(n*MSE))
+      lower <- (F_val/F_lower_corr - 1)/(F_val/F_lower_corr + (k-1) + k*(MSC-MSE)/(n*MSE))
+      upper <- (F_val/F_upper_corr - 1)/(F_val/F_upper_corr + (k-1) + k*(MSC-MSE)/(n*MSE))
     } else {
       F_val <- MSR / MSE
-      result$df_corrected <- df2
-      lower <- 1 - ( (MSR + (MSC-MSE)/n ) / (MSE * F_lower) ) / (MSR/MSE)
-      upper <- 1 - ( (MSR + (MSC-MSE)/n ) / (MSE * F_upper) ) / (MSR/MSE)
+      lower <- 1 - ( (MSR + (MSC-MSE)/n ) / (MSE * F_lower_corr) ) / (MSR/MSE)
+      upper <- 1 - ( (MSR + (MSC-MSE)/n ) / (MSE * F_upper_corr) ) / (MSR/MSE)
     }
   }
 
@@ -326,7 +334,7 @@ icc_tool_ci <- function(anova_result, icc_type, point_est, alpha = 0.05) {
 }
 
 #==============================================================================#
-# Function 6: icc_calc_f_test
+# Function 4: icc_calc_f_test
 # Unified F-test for ICC (H0: ICC = 0 or non-zero rho0)
 #==============================================================================#
 #' Hypothesis Testing for ICC
@@ -346,12 +354,13 @@ icc_tool_ci <- function(anova_result, icc_type, point_est, alpha = 0.05) {
 #'   \item{F_stat}{Numeric. F test statistic.}
 #'   \item{df1}{Integer. Numerator degrees of freedom.}
 #'   \item{df2}{Integer. Denominator degrees of freedom.}
-#'   \item{p_value}{Numeric. One-tailed p-value.}
+#'   \item{p_value}{Numeric. One-tailed p-value (H1: ICC > rho0).}
 #' }
 #'
 #' @keywords internal
 #' @references
-#' McGraw, K. O., & Wong, S. P. (1996). Forming inferences about some intraclass correlation coefficients.
+#' McGraw, K. O., & Wong, S. P. (1996). Forming inferences about some
+#' intraclass correlation coefficients. Psychological Methods, 1(1), 30-46.
 icc_calc_f_test <- function(anova_result, icc_type, rho0 = 0, alpha = 0.05) {
   # Initialize output
   result <- list(
@@ -369,14 +378,16 @@ icc_calc_f_test <- function(anova_result, icc_type, rho0 = 0, alpha = 0.05) {
   # Extract parameters
   MSR <- anova_result$MSR
   MSW <- anova_result$MSW
+  MSC <- anova_result$MSC
   MSE <- anova_result$MSE
   n <- anova_result$n
   k <- anova_result$k
   df1 <- anova_result$df1
   df2 <- anova_result$df2
 
-  # F statistic calculation (rho0 = 0: standard test)
+  # F statistic calculation
   if (rho0 == 0) {
+    # Standard zero test (McGraw & Wong 1996, Table 8)
     if (icc_type %in% c("1,1", "1,k")) {
       result$F_stat <- MSR / MSW
       result$df1 <- df1
@@ -391,18 +402,27 @@ icc_calc_f_test <- function(anova_result, icc_type, rho0 = 0, alpha = 0.05) {
       result$df2 <- df2
     }
   } else {
-    # Non-zero H0: full formula (Table 8)
+    # Non-zero test (McGraw & Wong 1996, Table 8)
     if (icc_type %in% c("1,1", "1,k")) {
       result$F_stat <- (MSR/MSW) * (1 - rho0) / (1 + (k-1)*rho0)
-    } else {
+      result$df1 <- df1
+      result$df2 <- n*(k-1)
+    } else if (icc_type %in% c("3,1","3,k","2,1,consistency","2,k,consistency")) {
       result$F_stat <- (MSR/MSE) * (1 - rho0) / (1 + (k-1)*rho0)
+      result$df1 <- df1
+      result$df2 <- df2
+    } else if (icc_type %in% c("2,1","2,k","3,1,absolute","3,k,absolute")) {
+      # Type A models: include rater variance component
+      numerator <- MSR * (1 - rho0)
+      denominator <- MSE * (1 + (k-1)*rho0) + k * (MSC - MSE) * rho0 / n
+      result$F_stat <- numerator / denominator
+      result$df1 <- df1
+      result$df2 <- df2
     }
-    result$df1 <- df1
-    result$df2 <- df2
   }
 
-  # One-tailed p-value (H1: ICC > rho0, standard for reliability)
-  result$p_value <- pf(result$F_stat, result$df1, result$df2, lower.tail = FALSE)
+  # One-tailed p-value (standard for reliability: H1: ICC > rho0)
+  result$p_value <- stats::pf(result$F_stat, result$df1, result$df2, lower.tail = FALSE)
 
   return(result)
 }

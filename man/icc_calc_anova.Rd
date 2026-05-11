@@ -12,7 +12,8 @@ icc_calc_anova(data_matrix, model_type, interaction = TRUE)
 \item{model_type}{Character. Model type: "oneway" (one-way random) or "twoway" (two-way).}
 
 \item{interaction}{Logical. Default \code{TRUE}. Whether to include subject×rater interaction
-term for two-way models (follows standard literature settings).}
+term for two-way models (follows standard literature settings). If FALSE, rater effect
+is pooled into the residual term.}
 }
 \value{
 A named list containing ANOVA results:

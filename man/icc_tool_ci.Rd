@@ -13,10 +13,10 @@ icc_tool_ci(anova_result, icc_type, point_est, alpha = 0.05)
 
 \item{point_est}{Numeric. Point estimate from \code{icc_tool_point}.}
 
-\item{alpha}{Numeric. Significance level, default 0.05 (95% CI).}
+\item{alpha}{Numeric. Significance level, default 0.05 (95\% CI).}
 }
 \value{
-Named list with CI results:
+A named list with CI results:
 \describe{
   \item{ci_level}{Numeric. Confidence level (1 - alpha).}
   \item{ci_lower}{Numeric. Lower bound of CI (truncated to 0).}
@@ -25,11 +25,12 @@ Named list with CI results:
 }
 }
 \description{
-Computes 95% confidence intervals for all 10 ICC types using exact F-distribution
+Computes confidence intervals for all 10 ICC types using exact F-distribution
 method from McGraw & Wong (1996) Table 7. Implements Satterthwaite degrees of
-freedom correction for Type A ICC models.
+freedom correction for Type A ICC models (ICC(2,1), ICC(2,k) and their variants).
 }
 \references{
-McGraw, K. O., & Wong, S. P. (1996). Forming inferences about some intraclass correlation coefficients.
+McGraw, K. O., & Wong, S. P. (1996). Forming inferences about some
+intraclass correlation coefficients. Psychological Methods, 1(1), 30-46.
 }
 \keyword{internal}

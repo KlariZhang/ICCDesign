@@ -376,6 +376,9 @@ icc_calc <- function(data, same_raters, rater_effect = NULL,
   # Step 1: Data Preprocessing
   #----------------------------------------------------------------------------#
   data_summary <- icc_preprocess_data(data, na.rm = na.rm)
+  if (!is.null(data_summary$error_msg)) {
+    stop(data_summary$error_msg, call. = FALSE)
+  }
   data_matrix <- data_summary$data_matrix
 
   #----------------------------------------------------------------------------#
@@ -388,6 +391,9 @@ icc_calc <- function(data, same_raters, rater_effect = NULL,
     agreement_type = agreement_type,
     k = data_summary$k
   )
+  if (!design_check$is_valid) {
+    stop(design_check$error_msg, call. = FALSE)
+  }
 
   #----------------------------------------------------------------------------#
   # Step 3: Map Design to ICC Function
@@ -406,7 +412,12 @@ icc_calc <- function(data, same_raters, rater_effect = NULL,
   # Step 4: Core ICC Calculation
   #----------------------------------------------------------------------------#
   # Dynamically get the function
-  icc_func <- get(mapping$icc_func_name, envir = asNamespace("ICCDesign"))
+  icc_func <- get(
+    mapping$icc_func_name,
+    envir = environment(icc_calc),
+    mode = "function",
+    inherits = TRUE
+  )
 
   # Call the function
   icc_result <- icc_func(

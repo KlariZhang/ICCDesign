@@ -12,6 +12,11 @@ Authors@R: c(
     person("Ziyu", "Liu", 
            role = "aut")
   )
+Author: Yundan Zhang [aut, cre],
+    Ruilin Ma [aut],
+    Chenge Gao [aut],
+    Ziyu Liu [aut]
+Maintainer: Yundan Zhang <1661572728@qq.com>
 Description: A comprehensive toolkit for intraclass correlation coefficient (ICC) analysis,
     integrating three core functionalities: (1) Closed-form sample size calculation for ICC
     estimation with assurance probability, based on Zou (2012) <doi:10.1002/sim.5466>;

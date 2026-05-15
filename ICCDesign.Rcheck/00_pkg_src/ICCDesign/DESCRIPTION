@@ -1,0 +1,39 @@
+Package: ICCDesign
+Title: Intraclass Correlation Coefficient (ICC) Design, Calculation and
+        Interactive Shiny Toolkit
+Version: 0.1.0
+Authors@R: c(
+    person("Yundan", "Zhang", 
+           email = "1661572728@qq.com",
+           role = c("aut", "cre")),
+    person("Ruilin", "Ma", 
+           role = "aut"),
+    person("Chenge", "Gao", 
+           role = "aut"),
+    person("Ziyu", "Liu", 
+           role = "aut")
+  )
+Author: Yundan Zhang [aut, cre],
+    Ruilin Ma [aut],
+    Chenge Gao [aut],
+    Ziyu Liu [aut]
+Maintainer: Yundan Zhang <1661572728@qq.com>
+Description: A comprehensive toolkit for intraclass correlation coefficient (ICC) analysis,
+    integrating three core functionalities: (1) Closed-form sample size calculation for ICC
+    estimation with assurance probability, based on Zou (2012) <doi:10.1002/sim.5466>;
+    (2) Full implementation of all 10 ICC types (6 common + 4 supplementary) for point
+    estimation, exact confidence interval calculation, and formal hypothesis testing,
+    following the methods of McGraw & Wong (1996) <doi:10.1037/1082-989X.1.1.30> and
+    the standard decision framework; (3) An interactive Shiny application that guides users
+    through ICC type selection, performs calculations, and provides reliability evaluation
+    based on the Koo & Li (2016) criteria.
+License: GPL (>= 2)
+Depends: R (>= 4.3.0)
+Imports: stats, shiny
+Suggests: testthat, knitr, rmarkdown
+Encoding: UTF-8
+URL: https://github.com/KlariZhang/ICCDesign
+BugReports: https://github.com/KlariZhang/ICCDesign/issues
+Config/roxygen2/version: 8.0.0
+NeedsCompilation: no
+Packaged: 2026-05-15 09:48:21 UTC; orzmr

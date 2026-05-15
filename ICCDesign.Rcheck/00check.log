@@ -1,0 +1,13 @@
+* using log directory ‘/Users/orzmr/Documents/生物统计学作业/ICCDesign/ICCDesign.Rcheck’
+* using R version 4.5.2 (2025-10-31)
+* using platform: aarch64-apple-darwin20
+* R was compiled by
+    Apple clang version 16.0.0 (clang-1600.0.26.6)
+    GNU Fortran (GCC) 14.2.0
+* running under: macOS Tahoe 26.4.1
+* using session charset: UTF-8
+* using option ‘--as-cran’
+* checking for file ‘ICCDesign/DESCRIPTION’ ... OK
+* this is package ‘ICCDesign’ version ‘0.1.0’
+* package encoding: UTF-8
+* checking CRAN incoming feasibility ...

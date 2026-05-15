@@ -1,4 +1,4 @@
-# RuilinMA 修改记录
+# ShinyApp可视化 修改记录
 
 本文档记录本次根据已有 ICCDesign 程序完成 Shiny 开发时所做的主要代码修改。
 

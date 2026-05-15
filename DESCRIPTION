@@ -2,21 +2,21 @@ Package: ICCDesign
 Title: Intraclass Correlation Coefficient (ICC) Design, Calculation and Interactive Shiny Toolkit
 Version: 0.1.0
 Authors@R: c(
-    person("Yundan", "Zhang", 
-           email = "1661572728@qq.com",
+    person("Ziyu", "Liu", 
+           email = "1755454769@qq.com",
            role = c("aut", "cre")),
     person("Ruilin", "Ma", 
            role = "aut"),
     person("Chenge", "Gao", 
            role = "aut"),
-    person("Ziyu", "Liu", 
+    person("Yundan", "Zhang", 
            role = "aut")
   )
-Author: Yundan Zhang [aut, cre],
+Author: Ziyu Liu [aut, cre],
     Ruilin Ma [aut],
     Chenge Gao [aut],
-    Ziyu Liu [aut]
-Maintainer: Yundan Zhang <1661572728@qq.com>
+    Yundan Zhang [aut]
+Maintainer: Ziyu Liu <1755454769@qq.com>
 Description: A comprehensive toolkit for intraclass correlation coefficient (ICC) analysis,
     integrating three core functionalities: (1) Closed-form sample size calculation for ICC
     estimation with assurance probability, based on Zou (2012) <doi:10.1002/sim.5466>;
@@ -35,3 +35,4 @@ LazyData: false
 URL: https://github.com/KlariZhang/ICCDesign
 BugReports: https://github.com/KlariZhang/ICCDesign/issues
 Config/roxygen2/version: 8.0.0
+RoxygenNote: 7.3.3

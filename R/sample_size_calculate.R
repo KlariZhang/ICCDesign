@@ -19,6 +19,13 @@
 #'
 #' @return Required sample size.
 #' @export
+#'
+#' @examples
+#' \dontrun{
+#' # Note: It is recommended to use the unified interface icc_sample_size()
+#' icc_sample_size_lower(rho = 0.8, rho0 = 0.6, k = 3, same_raters = FALSE, rating_type = "single")
+#' }
+
 icc_sample_size_lower <- function(
     rho, rho0 = NULL, k = 3, same_raters, rater_effect = NULL,
     rating_type, agreement_type = NULL, alpha = 0.05, assurance = 0.8,
@@ -30,14 +37,14 @@ icc_sample_size_lower <- function(
     rho0 <- rating_map[rating_target]
   }
   if (is.null(rho0)) stop("Provide rho0 or rating_target")
-  
+
   design_check <- icc_check_design(same_raters, rater_effect, rating_type, agreement_type, k)
   if (!design_check$is_valid) stop(design_check$error_msg)
   mapping <- icc_map_design_to_icc(same_raters, rater_effect, rating_type, agreement_type)
-  
+
   if (verbose) message("Mapped ICC type: ", mapping$icc_full_name)
   stopifnot(rho>=0&rho<=1, rho0>=0&rho0<=1, rho>rho0, k>=2)
-  
+
   z_alpha <- stats::qnorm(1-alpha)
   z_beta <- stats::qnorm(assurance)
   F_rho <- (1+(k-1)*rho)/(1-rho)
@@ -61,6 +68,13 @@ icc_sample_size_lower <- function(
 #'
 #' @return Required sample size.
 #' @export
+#'
+#' @examples
+#' \dontrun{
+#' # Note: It is recommended to use the unified interface icc_sample_size()
+#' icc_sample_size_width(rho = 0.7, omega = 0.1, k = 3, same_raters = FALSE, rating_type = "average")
+#' }
+
 icc_sample_size_width <- function(
     rho, omega, k=3, same_raters, rater_effect=NULL, rating_type,
     agreement_type=NULL, alpha=0.05, assurance=0.8, verbose=TRUE
@@ -69,13 +83,13 @@ icc_sample_size_width <- function(
   if (!design_check$is_valid) stop(design_check$error_msg)
   if (verbose) message("Mapped ICC type.")
   stopifnot(rho>=0&rho<=1, omega>0, k>=2)
-  
+
   z_alpha2 <- stats::qnorm(1-alpha/2)
   z_beta <- stats::qnorm(assurance)
   A <- (1-rho)*(1+(k-1)*rho)
   B <- k-2+2*rho-2*k*rho
   absB <- abs(B)
-  
+
   term1 <- A*z_alpha2
   term2 <- sqrt(A^2*z_alpha2^2 + 4*omega*z_alpha2*z_beta*A*absB)
   sqrt_N_minus_1 <- (term1+term2)/(omega*sqrt(2*k*(k-1)))
@@ -100,13 +114,22 @@ icc_sample_size_width <- function(
 #'
 #' @return Power.
 #' @export
+#'
+#' @examples
+#' \dontrun{
+#' # Note: It is recommended to use the unified interface icc_sample_size()
+#' icc_power(n = 30, rho = 0.7, rho0 = 0.5, k = 3,
+#'           same_raters = TRUE, rater_effect = "fixed",
+#'           rating_type = "single", agreement_type = "consistency")
+#' }
+
 icc_power <- function(
     n, rho, rho0=NULL, omega=NULL, k=3, same_raters, rater_effect=NULL,
     rating_type, agreement_type=NULL, alpha=0.05, method=c("lower","width"), verbose=TRUE
 ) {
   method <- match.arg(method)
   stopifnot(n>=2, rho>=0&rho<=1)
-  
+
   if (method=="lower") {
     if (is.null(rho0)) stop("Provide rho0")
     z_alpha <- stats::qnorm(1-alpha)
@@ -115,7 +138,7 @@ icc_power <- function(
     z_beta <- log(F_rho/F_rho0)*sqrt((k-1)*(n-1)/(2*k)) - z_alpha
     return(stats::pnorm(z_beta))
   }
-  
+
   if (method=="width") {
     if (is.null(omega)) stop("Provide omega")
     z_alpha2 <- stats::qnorm(1-alpha/2)
@@ -136,6 +159,46 @@ icc_power <- function(
 #'
 #' @return Sample size or power.
 #' @export
+#'
+#' @examples
+#' \dontrun{
+#' # Method 1: Sample size based on lower confidence limit (most recommended)
+#' # Ensure 95% CI lower bound >= 0.75 (good reliability)
+#' n1 <- icc_sample_size(
+#'   method = "lower",
+#'   rho = 0.85,
+#'   rating_target = "good",
+#'   k = 3,
+#'   same_raters = TRUE,
+#'   rater_effect = "random",
+#'   rating_type = "single",
+#'   agreement_type = "absolute"
+#' )
+#'
+#' # Method 2: Sample size based on confidence interval width
+#' # Ensure 95% CI half-width <= 0.1
+#' n2 <- icc_sample_size(
+#'   method = "width",
+#'   rho = 0.7,
+#'   omega = 0.1,
+#'   k = 3,
+#'   same_raters = FALSE,
+#'   rating_type = "average"
+#' )
+#'
+#' # Method 3: Power calculation for existing study design
+#' power <- icc_sample_size(
+#'   method = "power",
+#'   n = 30,
+#'   rho = 0.7,
+#'   rho0 = 0.5,
+#'   k = 3,
+#'   same_raters = TRUE,
+#'   rater_effect = "fixed",
+#'   rating_type = "single",
+#'   agreement_type = "consistency"
+#' )
+#' }
 icc_sample_size <- function(method = c("lower", "width", "power"), ...) {
   method <- match.arg(method)
   switch(method,

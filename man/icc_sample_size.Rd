@@ -17,3 +17,43 @@ Sample size or power.
 \description{
 Unified ICC Sample Size & Power Interface
 }
+\examples{
+\dontrun{
+# Method 1: Sample size based on lower confidence limit (most recommended)
+# Ensure 95\% CI lower bound >= 0.75 (good reliability)
+n1 <- icc_sample_size(
+  method = "lower",
+  rho = 0.85,
+  rating_target = "good",
+  k = 3,
+  same_raters = TRUE,
+  rater_effect = "random",
+  rating_type = "single",
+  agreement_type = "absolute"
+)
+
+# Method 2: Sample size based on confidence interval width
+# Ensure 95\% CI half-width <= 0.1
+n2 <- icc_sample_size(
+  method = "width",
+  rho = 0.7,
+  omega = 0.1,
+  k = 3,
+  same_raters = FALSE,
+  rating_type = "average"
+)
+
+# Method 3: Power calculation for existing study design
+power <- icc_sample_size(
+  method = "power",
+  n = 30,
+  rho = 0.7,
+  rho0 = 0.5,
+  k = 3,
+  same_raters = TRUE,
+  rater_effect = "fixed",
+  rating_type = "single",
+  agreement_type = "consistency"
+)
+}
+}

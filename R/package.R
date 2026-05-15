@@ -1,0 +1,45 @@
+#' ICCDesign: Intraclass Correlation Coefficient Analysis and Study Planning
+#'
+#' @description
+#' A comprehensive, user-friendly R package for intraclass correlation coefficient (ICC)
+#' analysis and sample size planning. Implements the full McGraw & Wong (1996) framework
+#' supporting all 10 ICC types, with an intuitive 4-question decision system that
+#' eliminates the need for users to memorize ICC type codes.
+#'
+#' The package provides both a command-line interface for advanced users and a
+#' fully interactive Shiny web application for point-and-click analysis. It also
+#' includes automated reliability evaluation based on Koo & Li (2016) criteria,
+#' publication-ready report generation, and rigorous sample size and power
+#' calculation functions.
+#'
+#' @section Key Features:
+#' \itemize{
+#'   \item Full support for all 10 ICC types from McGraw & Wong (1996)
+#'   \item Intuitive 4-question decision framework for ICC type selection
+#'   \item Automated reliability rating and interpretation
+#'   \item Publication-ready text, Markdown, and HTML reports
+#'   \item Sample size calculation based on confidence interval lower bound or width
+#'   \item Power analysis for existing study designs
+#'   \item Interactive Shiny web application with data upload and visualization
+#'   \item Comprehensive data validation and error handling
+#' }
+#'
+#' @section Main Functions:
+#' \describe{
+#'   \item{\code{\link{icc_calc}}}{Top-level function for complete ICC analysis}
+#'   \item{\code{\link{icc_sample_size}}}{Unified interface for sample size and power calculation}
+#'   \item{\code{\link{run_icc_app}}}{Launch the interactive Shiny application}
+#'   \item{\code{\link{icc_preprocess_data}}}{Data preprocessing and validation utility}
+#' }
+#'
+#' @references
+#' McGraw, K. O., & Wong, S. P. (1996). Forming inferences about some
+#' intraclass correlation coefficients. Psychological Methods, 1(1), 30-46.
+#'
+#' Koo, T. K., & Li, M. Y. (2016). A guideline of selecting and reporting
+#' intraclass correlation coefficients for reliability research. Journal of
+#' Chiropractic Medicine, 15(2), 155-163.
+#'
+#' @name ICCDesign-package
+#' @aliases ICCDesign
+"_PACKAGE"

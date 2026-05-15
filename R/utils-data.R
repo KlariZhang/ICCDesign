@@ -32,8 +32,17 @@
 #'     \code{NULL} if data is valid.}
 #' }
 #'
-#' @keywords internal
+#' @keywords utilities
 #' @export
+#'
+#' @examples
+#' \dontrun{
+#' # Preprocess the built-in example dataset
+#' data(icc_data)
+#' processed <- icc_preprocess_data(icc_data)
+#' str(processed)
+#' }
+
 icc_preprocess_data <- function(data, na.rm = TRUE) {
   # 1. Initialize output list with default values
   result <- list(

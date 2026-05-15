@@ -31,4 +31,12 @@ Performs standardized data cleaning, format conversion, and legality validation
 for raw input data. Provides a unified valid data input for all ICC calculation
 functions to avoid repetitive validation code.
 }
-\keyword{internal}
+\examples{
+\dontrun{
+# Preprocess the built-in example dataset
+data(icc_data)
+processed <- icc_preprocess_data(icc_data)
+str(processed)
+}
+}
+\keyword{utilities}

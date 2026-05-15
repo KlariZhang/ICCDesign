@@ -360,13 +360,41 @@ icc_generate_report <- function(icc_result, evaluation, format = "text") {
 #'
 #' @examples
 #' \dontrun{
-#' # Example 1: One-way random effects, single rating
+#' # Example 0: Use built-in example dataset
+#' data(icc_data)
+#' result <- icc_calc(icc_data, same_raters = TRUE, rater_effect = "random",
+#'                    rating_type = "single", agreement_type = "absolute")
+#' # Example 1: One-way random effects, single rating (ICC(1,1))
 #' data <- matrix(rnorm(100), nrow = 20, ncol = 5)
 #' result <- icc_calc(data, same_raters = FALSE, rating_type = "single")
 #'
-#' # Example 2: Two-way random effects, average rating, absolute agreement
+#' # Example 2: Two-way random effects, average rating, absolute agreement (ICC(2,k))
 #' result <- icc_calc(data, same_raters = TRUE, rater_effect = "random",
 #'                    rating_type = "average", agreement_type = "absolute")
+#'
+#' # Example 3: Two-way mixed effects, single rating, consistency (ICC(3,1))
+#' result <- icc_calc(data, same_raters = TRUE, rater_effect = "fixed",
+#'                    rating_type = "single", agreement_type = "consistency")
+#'
+#' # Example 4: Special scenario - automatic mapping with tip
+#' # Random effects + consistency (automatically mapped to ICC(3,1))
+#' result <- icc_calc(data, same_raters = TRUE, rater_effect = "random",
+#'                    rating_type = "single", agreement_type = "consistency")
+#'
+#' # Example 5: Special scenario - not recommended combination with warning
+#' # Fixed effects + absolute agreement (NOT RECOMMENDED)
+#' result <- icc_calc(data, same_raters = TRUE, rater_effect = "fixed",
+#'                    rating_type = "average", agreement_type = "absolute")
+#'
+#' # Example 6: Advanced parameters - custom alpha and non-zero test
+#' result <- icc_calc(data, same_raters = TRUE, rater_effect = "random",
+#'                    rating_type = "single", agreement_type = "absolute",
+#'                    alpha = 0.1, rho0 = 0.6, verbose = FALSE)
+#'
+#' # Example 7: Extract specific results
+#' result$icc_result$point_est  # ICC point estimate
+#' result$evaluation$rating_en  # Reliability rating
+#' result$report               # Full text report
 #' }
 icc_calc <- function(data, same_raters, rater_effect = NULL,
                      rating_type, agreement_type = NULL,

@@ -17,6 +17,12 @@
 #'
 #' @return Runs the Shiny application.
 #' @export
+#'
+#' @examples
+#' \dontrun{
+#' # Launch the interactive Shiny application
+#' run_icc_app()
+#' }
 run_icc_app <- function(host = "127.0.0.1", port = NULL,
                         launch.browser = interactive(), ...) {
   shiny::runApp(

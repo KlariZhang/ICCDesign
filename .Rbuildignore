@@ -1,4 +1,6 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
 ^\.Renviron$
+^ICCDesign_test\.Rmd$
+^ICCDesign\.Rcheck$
 ^ShinyAppVisualization\.md$

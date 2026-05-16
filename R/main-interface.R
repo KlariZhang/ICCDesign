@@ -240,11 +240,23 @@ icc_generate_report <- function(icc_result, evaluation, format = "text") {
   )
 
   test_section <- if (!is.null(f_test_null)) {
+
+    # Format p-value: if <0.0001, show "<0.0001", else 4 decimal places
+    p_val_formatted <- if (!is.null(f_test_null$p_value)) {
+      if (f_test_null$p_value < 0.0001) {
+        "<0.0001"
+      } else {
+        sprintf("%.4f", f_test_null$p_value)
+      }
+    } else {
+      "N/A"
+    }
+
     paste0(
       "Hypothesis Test (H0: ICC = 0):\n",
       "  F-statistic: ", sprintf("%.4f", f_test_null$F_stat), "\n",
       "  DF1: ", f_test_null$df1, ", DF2: ", f_test_null$df2, "\n",
-      "  p-value: ", if (!is.null(f_test_null$p_value)) sprintf("%.4f", f_test_null$p_value) else "N/A"
+      "  p-value: ", p_val_formatted
     )
   } else {
     "Hypothesis Test: Not available"

@@ -203,11 +203,8 @@ icc_shiny_app <- function() {
     shiny::conditionalPanel(
       "input.data_mode == 'example'",
       shiny::div(
-        class = "input-grid",
-        shiny::numericInput("example_n", "Subjects", value = 24, min = 2, max = 1000, step = 1),
-        shiny::numericInput("example_k", "Raters", value = 4, min = 2, max = 50, step = 1),
-        shiny::sliderInput("example_rho", "Target ICC", min = 0.05, max = 0.95, value = 0.72, step = 0.01),
-        shiny::numericInput("example_seed", "Seed", value = 2026, min = 1, step = 1)
+        class = "example-note",
+        shiny::p(class = "muted", "Uses the fixed built-in icc_data dataset.")
       )
     ),
     shiny::conditionalPanel(
@@ -370,7 +367,7 @@ icc_shiny_app <- function() {
   raw_data <- shiny::reactive({
     switch(
       input$data_mode,
-      example = .icc_make_example_data(input$example_n, input$example_k, input$example_rho, input$example_seed),
+      example = .icc_example_data(),
       upload = .icc_read_uploaded(input$data_file, input$file_header, input$file_sep, input$file_dec),
       paste = .icc_read_pasted(input$pasted_data, input$pasted_header, input$pasted_sep, input$pasted_dec),
       NULL
@@ -709,22 +706,24 @@ icc_shiny_app <- function() {
   )
 }
 
-.icc_make_example_data <- function(n, k, rho, seed) {
-  n <- max(2, as.integer(n))
-  k <- max(2, as.integer(k))
-  rho <- min(max(rho, 0.01), 0.99)
-  set.seed(as.integer(seed))
+.icc_example_data <- function() {
+  env <- new.env(parent = emptyenv())
+  loaded <- tryCatch({
+    utils::data("icc_data", package = "ICCDesign", envir = env)
+    exists("icc_data", envir = env, inherits = FALSE)
+  }, error = function(e) {
+    FALSE
+  })
 
-  subject_sd <- sqrt(rho)
-  error_sd <- sqrt(1 - rho)
-  subjects <- stats::rnorm(n, mean = 0, sd = subject_sd)
-  rater_bias <- stats::rnorm(k, mean = 0, sd = 0.12)
-  error <- matrix(stats::rnorm(n * k, mean = 0, sd = error_sd), nrow = n, ncol = k)
-  values <- 70 + 10 * (subjects + error) + matrix(rater_bias, nrow = n, ncol = k, byrow = TRUE)
+  if (!loaded && file.exists("data/icc_data.rda")) {
+    load("data/icc_data.rda", envir = env)
+    loaded <- exists("icc_data", envir = env, inherits = FALSE)
+  }
+  if (!loaded) {
+    stop("The built-in icc_data dataset could not be loaded.", call. = FALSE)
+  }
 
-  data <- as.data.frame(round(values, 2))
-  names(data) <- paste0("Rater_", seq_len(k))
-  data
+  as.data.frame(env$icc_data, check.names = FALSE)
 }
 
 .icc_design_args <- function(input, prefix = "") {

@@ -851,6 +851,7 @@ icc_shiny_app <- function() {
     ylim = c(0.7, 1.3),
     xlab = "ICC value",
     ylab = "",
+    xaxt = "n",
     yaxt = "n",
     bty = "n",
     main = ""
@@ -859,7 +860,14 @@ icc_shiny_app <- function() {
   graphics::rect(0.5, 0.7, 0.75, 1.3, col = "#f4e7bd", border = NA)
   graphics::rect(0.75, 0.7, 0.9, 1.3, col = "#d7eadb", border = NA)
   graphics::rect(0.9, 0.7, x_max, 1.3, col = "#cfe8e5", border = NA)
-  graphics::axis(1, at = c(0, 0.5, 0.75, 0.9, 1))
+  axis_at <- c(x_min, 0, 0.5, 0.75, 0.9, 1)
+  axis_at <- axis_at[axis_at >= x_min & axis_at <= x_max]
+  graphics::axis(
+    1,
+    at = axis_at,
+    labels = vapply(axis_at, .icc_fmt, character(1), digits = 2),
+    cex.axis = 0.82
+  )
   graphics::abline(v = c(0.5, 0.75, 0.9), col = "#6b7280", lty = 3)
   graphics::segments(lower, 1, upper, 1, lwd = 5, col = "#256d75")
   graphics::points(point, 1, pch = 19, cex = 1.8, col = "#d85c48")

@@ -198,6 +198,15 @@ icc_tool_point <- function(anova_result, icc_type) {
   n   <- anova_result$n
   k   <- anova_result$k
 
+
+  # Prevent potential errors when MSC is NULL (e.g., two-way model with interaction = FALSE)
+  MSC <- ifelse(is.null(MSC), 0, MSC)
+
+  # For Type C ICC (consistency), MSW may be NULL in two-way model; use MSE as fallback
+  if (icc_type %in% c("3,1","3,k","2,1,consistency","2,k,consistency")) {
+    if (is.null(MSW)) MSW <- MSE
+  }
+
   #----------------------------------------------------------------------------#
   # Step 3: Calculate point estimate by ICC type (100% match Table 4/5 1996)
   #----------------------------------------------------------------------------#
@@ -283,9 +292,17 @@ icc_tool_ci <- function(anova_result, icc_type, point_est, alpha = 0.05) {
   df2 <- anova_result$df2
   df3 <- anova_result$df3
 
+  # Prevent potential errors when MSC is NULL (e.g., two-way model with interaction = FALSE)
+  MSC <- ifelse(is.null(MSC), 0, MSC)
+
+  # For Type C ICC (consistency), MSW may be NULL in two-way model; use MSE as fallback
+  if (icc_type %in% c("3,1","3,k","2,1,consistency","2,k,consistency")) {
+    if (is.null(MSW)) MSW <- MSE
+  }
+
   # F quantiles (two-tailed)
-  F_lower <- stats::qf(alpha/2, df1, df2, lower.tail = FALSE)
-  F_upper <- stats::qf(alpha/2, df2, df1, lower.tail = FALSE)
+  F_lower <- stats::qf(1 - alpha/2, df1, df2)  # 上界对应右尾
+  F_upper <- stats::qf(alpha/2, df1, df2)
 
   # CI calculation by ICC type
   if (icc_type %in% c("1,1")) {
@@ -312,13 +329,14 @@ icc_tool_ci <- function(anova_result, icc_type, point_est, alpha = 0.05) {
     result$df_corrected <- df_corrected
 
     # Recalculate F quantiles with corrected degrees of freedom
-    F_lower_corr <- stats::qf(alpha/2, df1, df_corrected, lower.tail = FALSE)
-    F_upper_corr <- stats::qf(alpha/2, df_corrected, df1, lower.tail = FALSE)
+    F_lower_corr <- stats::qf(1 - alpha/2, df1, df_corrected)  # 右尾
+    F_upper_corr <- stats::qf(alpha/2, df1, df_corrected)
 
     if (icc_type %in% c("2,1", "3,1,absolute")) {
       F_val <- MSR / MSE
-      lower <- (F_val/F_lower_corr - 1)/(F_val/F_lower_corr + (k-1) + k*(MSC-MSE)/(n*MSE))
-      upper <- (F_val/F_upper_corr - 1)/(F_val/F_upper_corr + (k-1) + k*(MSC-MSE)/(n*MSE))
+      # Modified Type A ICC CI formula 5.16
+      lower <- (F_val / F_lower_corr - 1) / (F_val / F_lower_corr + (k-1) + k*(MSC - MSE)/(n*MSE))
+      upper <- (F_val / F_upper_corr - 1) / (F_val / F_upper_corr + (k-1) + k*(MSC - MSE)/(n*MSE))
     } else {
       F_val <- MSR / MSE
       lower <- 1 - ( (MSR + (MSC-MSE)/n ) / (MSE * F_lower_corr) ) / (MSR/MSE)

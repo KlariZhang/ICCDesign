@@ -1,0 +1,109 @@
+---
+title: "ICCDesign_test"
+author: "10235001423刘子玉"
+date: "2026-05-15"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+devtools::document()
+devtools::install(force = TRUE)
+```
+
+
+```{r}
+# 加载包
+library(ICCDesign)
+
+# 加载内置数据集
+data(icc_data)
+
+# 查看数据集
+print(icc_data)
+```
+
+
+
+```{r}
+# 测试1：ICC(1,1) - 单因素随机，单次评分
+cat("=== Testing ICC(1,1) ===\n")
+result1 <- icc_calc(icc_data, same_raters = FALSE, rating_type = "single", verbose = FALSE)
+cat("ICC point estimate:", result1$icc_result$point_est, "\n")
+cat("Reliability rating:", result1$evaluation$rating_en, "\n\n")
+
+# 测试2：ICC(2,1) - 双因素随机，单次评分，绝对同意
+cat("=== Testing ICC(2,1) ===\n")
+result2 <- icc_calc(icc_data, same_raters = TRUE, rater_effect = "random",
+                    rating_type = "single", agreement_type = "absolute", verbose = FALSE)
+cat("ICC point estimate:", result2$icc_result$point_est, "\n")
+cat("Reliability rating:", result2$evaluation$rating_en, "\n\n")
+
+# 测试3：ICC(3,k) - 双因素混合，平均评分，一致性
+cat("=== Testing ICC(3,k) ===\n")
+result3 <- icc_calc(icc_data, same_raters = TRUE, rater_effect = "fixed",
+                    rating_type = "average", agreement_type = "consistency", verbose = FALSE)
+cat("ICC point estimate:", result3$icc_result$point_est, "\n")
+cat("Reliability rating:", result3$evaluation$rating_en, "\n\n")
+
+# 测试4：自动映射（随机+一致性）
+cat("=== Testing automatic mapping ===\n")
+result4 <- icc_calc(icc_data, same_raters = TRUE, rater_effect = "random",
+                    rating_type = "single", agreement_type = "consistency", verbose = TRUE)
+```
+
+
+```{r}
+# 测试1：基于下限的样本量计算
+cat("=== Testing sample size (lower bound) ===\n")
+n1 <- icc_sample_size(
+  method = "lower",
+  rho = 0.8,
+  rho0 = 0.6,
+  k = 3,
+  same_raters = TRUE,
+  rater_effect = "random",
+  rating_type = "single",
+  agreement_type = "absolute",
+  verbose = FALSE
+)
+cat("Required sample size:", n1, "\n\n")
+
+# 测试2：基于宽度的样本量计算
+cat("=== Testing sample size (width) ===\n")
+n2 <- icc_sample_size(
+  method = "width",
+  rho = 0.7,
+  omega = 0.1,
+  k = 3,
+  same_raters = FALSE,
+  rating_type = "average",
+  verbose = FALSE
+)
+cat("Required sample size:", n2, "\n\n")
+
+# 测试3：功效计算
+cat("=== Testing power calculation ===\n")
+power <- icc_sample_size(
+  method = "power",
+  n = 30,
+  rho = 0.7,
+  rho0 = 0.5,
+  k = 3,
+  same_raters = TRUE,
+  rater_effect = "fixed",
+  rating_type = "single",
+  agreement_type = "consistency",
+  verbose = FALSE
+)
+cat("Estimated power:", sprintf("%.1f%%", power * 100), "\n")
+```
+
+
+```{r}
+# 启动Shiny应用
+run_icc_app()
+```

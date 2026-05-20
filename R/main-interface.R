@@ -348,8 +348,7 @@ icc_generate_report <- function(icc_result, evaluation, format = "text") {
 #'   two-way models, default TRUE.
 #' @param na.rm Logical. Whether to automatically remove rows with missing
 #'   values, default TRUE.
-#' @param verbose Logical. Whether to automatically print warnings, tips,
-#'   and the report to the console, default TRUE.
+#' @param verbose Logical. Whether to emit warnings and tips, default TRUE.
 #'
 #' @return A named list containing:
 #' \describe{
@@ -476,23 +475,18 @@ icc_calc <- function(data, same_raters, rater_effect = NULL,
   report <- icc_generate_report(icc_result, evaluation, format = "text")
 
   #----------------------------------------------------------------------------#
-  # Step 7: Console Output (if verbose = TRUE)
+  # Step 7: Messages (if verbose = TRUE)
   #----------------------------------------------------------------------------#
   if (verbose) {
-    # Print warning if exists
+    # Emit warning if exists
     if (!is.null(warning_msg)) {
-      message("WARNING: ", warning_msg)
-      message()
+      warning(warning_msg, call. = FALSE)
     }
 
-    # Print tip if exists
+    # Emit tip if exists
     if (!is.null(tip_msg)) {
       message("NOTE: ", tip_msg)
-      message()
     }
-
-    # Print report
-    cat(report)
   }
 
   #----------------------------------------------------------------------------#

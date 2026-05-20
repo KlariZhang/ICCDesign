@@ -45,8 +45,7 @@ two-way models, default TRUE.}
 \item{na.rm}{Logical. Whether to automatically remove rows with missing
 values, default TRUE.}
 
-\item{verbose}{Logical. Whether to automatically print warnings, tips,
-and the report to the console, default TRUE.}
+\item{verbose}{Logical. Whether to emit warnings and tips, default TRUE.}
 }
 \value{
 A named list containing:

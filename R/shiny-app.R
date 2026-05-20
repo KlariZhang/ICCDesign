@@ -844,6 +844,8 @@ icc_shiny_app <- function() {
 .icc_plot_interval <- function(point, lower, upper) {
   x_min <- min(-0.2, point - 0.05, lower, na.rm = TRUE)
   x_max <- 1
+  oldpar <- graphics::par(no.readonly = TRUE)
+  on.exit(graphics::par(oldpar), add = TRUE)
   graphics::par(mar = c(4, 2, 2, 1), bg = "white")
   graphics::plot(
     NA,
@@ -916,6 +918,8 @@ icc_shiny_app <- function() {
     )
   }, numeric(1))
 
+  oldpar <- graphics::par(no.readonly = TRUE)
+  on.exit(graphics::par(oldpar), add = TRUE)
   graphics::par(mar = c(4, 4, 2, 1), bg = "white")
   graphics::plot(
     n_seq,

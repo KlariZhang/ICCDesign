@@ -1,6 +1,6 @@
 Package: ICCDesign
 Title: Intraclass Correlation Coefficient (ICC) Design, Calculation and Interactive 'shiny' Toolkit
-Version: 0.1.1
+Version: 0.1.0
 Authors@R: c(
     person("Ziyu", "Liu", 
            email = "1755454769@qq.com",

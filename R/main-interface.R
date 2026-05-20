@@ -371,7 +371,6 @@ icc_generate_report <- function(icc_result, evaluation, format = "text") {
 #' Chiropractic Medicine, 15(2), 155-163.
 #'
 #' @examples
-#' \dontrun{
 #' # Example 0: Use built-in example dataset
 #' data(icc_data)
 #' result <- icc_calc(icc_data, same_raters = TRUE, rater_effect = "random",
@@ -407,7 +406,6 @@ icc_generate_report <- function(icc_result, evaluation, format = "text") {
 #' result$icc_result$point_est  # ICC point estimate
 #' result$evaluation$rating_en  # Reliability rating
 #' result$report               # Full text report
-#' }
 icc_calc <- function(data, same_raters, rater_effect = NULL,
                      rating_type, agreement_type = NULL,
                      alpha = 0.05, rho0 = NULL, interaction = TRUE,

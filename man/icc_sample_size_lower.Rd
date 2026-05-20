@@ -48,8 +48,6 @@ Required sample size.
 Sample Size for ICC based on Lower Confidence Limit
 }
 \examples{
-\dontrun{
 # Note: It is recommended to use the unified interface icc_sample_size()
 icc_sample_size_lower(rho = 0.8, rho0 = 0.6, k = 3, same_raters = FALSE, rating_type = "single")
-}
 }

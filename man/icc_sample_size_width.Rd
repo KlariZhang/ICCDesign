@@ -45,8 +45,6 @@ Required sample size.
 Sample Size for ICC based on Confidence Interval Width
 }
 \examples{
-\dontrun{
 # Note: It is recommended to use the unified interface icc_sample_size()
 icc_sample_size_width(rho = 0.7, omega = 0.1, k = 3, same_raters = FALSE, rating_type = "average")
-}
 }

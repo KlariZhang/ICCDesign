@@ -21,10 +21,8 @@
 #' @export
 #'
 #' @examples
-#' \dontrun{
 #' # Note: It is recommended to use the unified interface icc_sample_size()
 #' icc_sample_size_lower(rho = 0.8, rho0 = 0.6, k = 3, same_raters = FALSE, rating_type = "single")
-#' }
 
 icc_sample_size_lower <- function(
     rho, rho0 = NULL, k = 3, same_raters, rater_effect = NULL,
@@ -70,10 +68,8 @@ icc_sample_size_lower <- function(
 #' @export
 #'
 #' @examples
-#' \dontrun{
 #' # Note: It is recommended to use the unified interface icc_sample_size()
 #' icc_sample_size_width(rho = 0.7, omega = 0.1, k = 3, same_raters = FALSE, rating_type = "average")
-#' }
 
 icc_sample_size_width <- function(
     rho, omega, k=3, same_raters, rater_effect=NULL, rating_type,
@@ -116,12 +112,10 @@ icc_sample_size_width <- function(
 #' @export
 #'
 #' @examples
-#' \dontrun{
 #' # Note: It is recommended to use the unified interface icc_sample_size()
 #' icc_power(n = 30, rho = 0.7, rho0 = 0.5, k = 3,
 #'           same_raters = TRUE, rater_effect = "fixed",
 #'           rating_type = "single", agreement_type = "consistency")
-#' }
 
 icc_power <- function(
     n, rho, rho0=NULL, omega=NULL, k=3, same_raters, rater_effect=NULL,
@@ -161,7 +155,6 @@ icc_power <- function(
 #' @export
 #'
 #' @examples
-#' \dontrun{
 #' # Method 1: Sample size based on lower confidence limit (most recommended)
 #' # Ensure 95% CI lower bound >= 0.75 (good reliability)
 #' n1 <- icc_sample_size(
@@ -198,7 +191,6 @@ icc_power <- function(
 #'   rating_type = "single",
 #'   agreement_type = "consistency"
 #' )
-#' }
 icc_sample_size <- function(method = c("lower", "width", "power"), ...) {
   method <- match.arg(method)
   switch(method,

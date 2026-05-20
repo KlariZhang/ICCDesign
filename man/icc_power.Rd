@@ -51,10 +51,8 @@ Power.
 Power Calculation for ICC Study Design
 }
 \examples{
-\dontrun{
 # Note: It is recommended to use the unified interface icc_sample_size()
 icc_power(n = 30, rho = 0.7, rho0 = 0.5, k = 3,
           same_raters = TRUE, rater_effect = "fixed",
           rating_type = "single", agreement_type = "consistency")
-}
 }

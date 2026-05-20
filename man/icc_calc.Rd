@@ -66,7 +66,6 @@ handles data preprocessing, parameter validation, ICC type mapping,
 core calculation, reliability evaluation, and report generation.
 }
 \examples{
-\dontrun{
 # Example 0: Use built-in example dataset
 data(icc_data)
 result <- icc_calc(icc_data, same_raters = TRUE, rater_effect = "random",
@@ -102,7 +101,6 @@ result <- icc_calc(data, same_raters = TRUE, rater_effect = "random",
 result$icc_result$point_est  # ICC point estimate
 result$evaluation$rating_en  # Reliability rating
 result$report               # Full text report
-}
 }
 \references{
 McGraw, K. O., & Wong, S. P. (1996). Forming inferences about some

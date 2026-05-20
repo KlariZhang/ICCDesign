@@ -31,7 +31,7 @@ Starts an interactive Shiny application for ICC analysis, reliability
 reporting, and sample size or power planning.
 }
 \examples{
-\dontrun{
+if (interactive()) {
 # Launch the interactive Shiny application
 run_icc_app()
 }

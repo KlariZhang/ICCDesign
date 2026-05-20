@@ -19,7 +19,7 @@
 #' @export
 #'
 #' @examples
-#' \dontrun{
+#' if (interactive()) {
 #' # Launch the interactive Shiny application
 #' run_icc_app()
 #' }

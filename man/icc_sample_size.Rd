@@ -18,7 +18,6 @@ Sample size or power.
 Unified ICC Sample Size & Power Interface
 }
 \examples{
-\dontrun{
 # Method 1: Sample size based on lower confidence limit (most recommended)
 # Ensure 95\% CI lower bound >= 0.75 (good reliability)
 n1 <- icc_sample_size(
@@ -55,5 +54,4 @@ power <- icc_sample_size(
   rating_type = "single",
   agreement_type = "consistency"
 )
-}
 }

@@ -311,16 +311,16 @@ icc_tool_ci <- function(anova_result, icc_type, point_est, alpha = 0.05) {
     upper <- (F1 / F_upper - 1) / (F1 / F_upper + (k-1))
   } else if (icc_type %in% c("1,k")) {
     F1 <- MSR / MSW
-    lower <- 1 - 1/F_lower
-    upper <- 1 - 1/F_upper
+    lower <- 1 - F_lower/F1
+    upper <- 1 - F_upper/F1
   } else if (icc_type %in% c("3,1", "2,1,consistency")) {
     F1 <- MSR / MSE
     lower <- (F1 / F_lower - 1) / (F1 / F_lower + (k-1))
     upper <- (F1 / F_upper - 1) / (F1 / F_upper + (k-1))
   } else if (icc_type %in% c("3,k", "2,k,consistency")) {
     F1 <- MSR / MSE
-    lower <- 1 - 1/F_lower
-    upper <- 1 - 1/F_upper
+    lower <- 1 - F_lower/F1
+    upper <- 1 - F_upper/F1
   } else if (icc_type %in% c("2,1", "3,1,absolute", "2,k", "3,k,absolute")) {
     # Type A: Satterthwaite degrees of freedom correction (McGraw & Wong 1996, p.37)
     a <- k * MSC / n + (n - 1) * MSE
@@ -339,8 +339,8 @@ icc_tool_ci <- function(anova_result, icc_type, point_est, alpha = 0.05) {
       upper <- (F_val / F_upper_corr - 1) / (F_val / F_upper_corr + (k-1) + k*(MSC - MSE)/(n*MSE))
     } else {
       F_val <- MSR / MSE
-      lower <- 1 - ( (MSR + (MSC-MSE)/n ) / (MSE * F_lower_corr) ) / (MSR/MSE)
-      upper <- 1 - ( (MSR + (MSC-MSE)/n ) / (MSE * F_upper_corr) ) / (MSR/MSE)
+      lower <- (F_val / F_lower_corr - 1) / (F_val / F_lower_corr + (MSC - MSE)/(n*MSE))
+      upper <- (F_val / F_upper_corr - 1) / (F_val / F_upper_corr + (MSC - MSE)/(n*MSE))
     }
   }
 
@@ -421,21 +421,44 @@ icc_calc_f_test <- function(anova_result, icc_type, rho0 = 0, alpha = 0.05) {
     }
   } else {
     # Non-zero test (McGraw & Wong 1996, Table 8)
-    if (icc_type %in% c("1,1", "1,k")) {
+    if (icc_type %in% c("1,1")) {
       result$F_stat <- (MSR/MSW) * (1 - rho0) / (1 + (k-1)*rho0)
       result$df1 <- df1
       result$df2 <- n*(k-1)
-    } else if (icc_type %in% c("3,1","3,k","2,1,consistency","2,k,consistency")) {
+    } else if (icc_type %in% c("1,k")) {
+      result$F_stat <- (MSR/MSW) * (1 - rho0)
+      result$df1 <- df1
+      result$df2 <- n*(k-1)
+    } else if (icc_type %in% c("3,1","2,1,consistency")) {
       result$F_stat <- (MSR/MSE) * (1 - rho0) / (1 + (k-1)*rho0)
       result$df1 <- df1
       result$df2 <- df2
-    } else if (icc_type %in% c("2,1","2,k","3,1,absolute","3,k,absolute")) {
-      # Type A models: include rater variance component
-      numerator <- MSR * (1 - rho0)
-      denominator <- MSE * (1 + (k-1)*rho0) + k * (MSC - MSE) * rho0 / n
-      result$F_stat <- numerator / denominator
+    } else if (icc_type %in% c("3,k","2,k,consistency")) {
+      result$F_stat <- (MSR/MSE) * (1 - rho0)
       result$df1 <- df1
       result$df2 <- df2
+    } else if (icc_type %in% c("2,1","3,1,absolute")) {
+      # Type (A, 1) formula
+      a <- (k * rho0) / (n * (1 - rho0))
+      b <- 1 + (k * rho0 * (n - 1)) / (n * (1 - rho0))
+      result$F_stat <- MSR / (a * MSC + b * MSE)
+
+      # Satterthwaite df2 correction for Type A test
+      v_num <- (a * MSC + b * MSE)^2
+      v_den <- ((a * MSC)^2) / (k - 1) + ((b * MSE)^2) / ((n - 1) * (k - 1))
+      result$df1 <- df1
+      result$df2 <- v_num / v_den
+    } else if (icc_type %in% c("2,k","3,k,absolute")) {
+      # Type (A, k) formula
+      c <- rho0 / (n * (1 - rho0))
+      d <- 1 + (rho0 * (n - 1)) / (n * (1 - rho0))
+      result$F_stat <- MSR / (c * MSC + d * MSE)
+
+      # Satterthwaite df2 correction for Type A test
+      v_num <- (c * MSC + d * MSE)^2
+      v_den <- ((c * MSC)^2) / (k - 1) + ((d * MSE)^2) / ((n - 1) * (k - 1))
+      result$df1 <- df1
+      result$df2 <- v_num / v_den
     }
   }
 

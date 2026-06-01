@@ -107,7 +107,9 @@ icc_calc_anova <- function(data_matrix, model_type, interaction = TRUE) {
     # Sum of squares
     ss_r <- sum(k * (row_means - grand_mean)^2)  # Subjects
     ss_c <- sum(n * (col_means - grand_mean)^2)  # Raters
-    ss_e <- sum((data_matrix - row_means - col_means + grand_mean)^2)  # Residual/Interaction
+
+    ss_total <- sum((data_matrix - grand_mean)^2)
+    ss_e <- ss_total - ss_r - ss_c # Residual/Interaction
 
     # Degrees of freedom
     df1 <- n - 1    # Subjects
@@ -323,9 +325,12 @@ icc_tool_ci <- function(anova_result, icc_type, point_est, alpha = 0.05) {
     upper <- 1 - F_upper/F1
   } else if (icc_type %in% c("2,1", "3,1,absolute", "2,k", "3,k,absolute")) {
     # Type A: Satterthwaite degrees of freedom correction (McGraw & Wong 1996, p.37)
-    a <- k * MSC / n + (n - 1) * MSE
-    b <- (n - 1) * k * MSE / n
-    df_corrected <- (a + b)^2 / (a^2 / df1 + b^2 / df2)
+    a <- k / n
+    b <- (k * n - k - n) / n
+
+    v_num <- (a * MSC + b * MSE)^2
+    v_den <- ((a * MSC)^2) / (k - 1) + ((b * MSE)^2) / ((n - 1) * (k - 1))
+    df_corrected <- v_num / v_den
     result$df_corrected <- df_corrected
 
     # Recalculate F quantiles with corrected degrees of freedom
